@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Zealand Itinerary Map — 17–28 February 2027</title>
+<style>
+  :root { --ink:#183c34; --cream:#f4f7f8; --ocean:#dfeef0; --land:#d9e6cf; --line:#b9cbc7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Avenir Next",Avenir,"Segoe UI",sans-serif; background:var(--cream); color:#183c34; }
+  header { background:#133c34; color:#fff; padding:22px 30px 18px; }
+  h1 { margin:0 0 6px; font-size:25px; letter-spacing:-.35px; }
+  header p { margin:0; opacity:.85; font-size:14px; }
+  main { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(310px,.65fr); min-height:calc(100vh - 91px); }
+  .map-wrap { position:relative; height:760px; min-height:760px; align-self:start; background:var(--ocean); overflow:hidden; }
+  #map { width:100%; height:760px; display:block; }
+  .map-title { position:absolute; top:18px; left:18px; background:#fffdf8e8; border:1px solid #d6dfd8; padding:10px 12px; border-radius:8px; font-size:13px; line-height:1.4; box-shadow:0 2px 8px rgba(0,0,0,.13); }
+  .map-title strong { display:block; font-size:13px; }
+  .sidebar { padding:22px; border-left:1px solid #d7dfd8; background:#fffdf8; overflow:auto; }
+  .sidebar h2 { margin:0 0 6px; font-size:19px; }
+  .sidebar > p { font-size:12px; color:#587068; margin:0 0 15px; line-height:1.45; }
+  .day { border-top:1px solid #e0e6de; padding:10px 0 7px; }
+  .day:first-of-type { border-top:0; }
+  .day h3 { margin:0 0 7px; font-size:13px; color:#39665a; }
+  .loc { display:flex; align-items:flex-start; gap:8px; margin:0 0 7px; padding:7px; border-radius:7px; font-size:13px; line-height:1.32; cursor:pointer; transition:background .15s ease; }
+  .loc:hover, .loc.is-active { background:#e8f1eb; }
+  .num { flex:0 0 21px; height:21px; line-height:21px; text-align:center; border-radius:50%; color:#fff; font-size:12px; font-weight:700; margin-top:-1px; }
+  .loc span:last-child { color:#29423a; }
+  .muted { color:#587068; font-size:12px; }
+  .open-link { display:inline-block; margin-top:4px; color:#176d58; font-size:12px; font-weight:700; text-decoration:none; }
+  .open-link:hover { text-decoration:underline; }
+  .pin { cursor:pointer; }
+  .pin circle { stroke:#fff; stroke-width:2.7; transition:r .15s ease, stroke .15s ease; }
+  .pin text { fill:#fff; font-size:10px; font-weight:700; text-anchor:middle; dominant-baseline:middle; pointer-events:none; }
+  .pin:hover circle, .pin.is-active circle { r:11; stroke:#153d35; stroke-width:3; }
+  .map-tools { position:absolute; top:18px; right:18px; z-index:2; width:min(265px,calc(100% - 36px)); background:#fffdf8ee; border:1px solid #d6dfd8; border-radius:8px; padding:10px; box-shadow:0 2px 8px rgba(0,0,0,.13); }
+  .map-tools label { display:block; margin:0 0 5px; color:#466258; font-size:12px; font-weight:700; }
+  .map-tools select { width:100%; padding:8px 9px; color:#183c34; border:1px solid #b8c9be; border-radius:5px; background:#fff; font-size:13px; }
+  .selected-location { position:absolute; left:18px; bottom:18px; z-index:2; max-width:340px; padding:9px 11px; background:#153d35ee; color:#fff; border-radius:7px; box-shadow:0 3px 10px #0002; font-size:12px; line-height:1.38; }
+  .selected-location strong { display:block; }
+  .land { fill:var(--land); stroke:#739584; stroke-width:2; }
+  .route { fill:none; stroke:#486f6a; stroke-width:1.6; stroke-dasharray:5 6; opacity:.62; }
+  .label { font-size:12px; font-weight:700; fill:#2e554b; paint-order:stroke; stroke:#f5faf6; stroke-width:3; stroke-linejoin:round; }
+  .tiny { font-size:10px; fill:#54736c; }
+  .tooltip { position:fixed; display:none; max-width:260px; background:#153d35; color:#fff; padding:9px 11px; border-radius:7px; font-size:12px; line-height:1.35; box-shadow:0 4px 14px #0003; pointer-events:none; z-index:10; }
+  .footnote { margin-top:13px; padding-top:11px; border-top:1px solid #e0e6de; font-size:12px; color:#61766e; line-height:1.45; }
+  @media(max-width:850px) { main { grid-template-columns:1fr; } .sidebar { border-left:0; border-top:1px solid #d7dfd8; } .map-wrap,#map { height:690px; min-height:690px; } .map-title { top:16px; left:16px; right:16px; } .map-tools { top:106px; left:16px; right:16px; width:auto; } .selected-location { left:16px; right:16px; bottom:16px; max-width:none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>New Zealand itinerary map</h1>
+  <p>17–28 February 2027 · South Island attractions, activity points and travel endpoints</p>
+</header>
+<main>
+  <section class="map-wrap" aria-label="South Island New Zealand itinerary map">
+    <svg id="map" viewBox="0 0 900 760" role="img" aria-label="Map of New Zealand South Island with itinerary pins"></svg>
+    <div class="map-title"><strong>South Island itinerary</strong>Select a day, then tap a numbered pin or a location in the list.<br>Dashed line shows the high-level travel flow, not driving roads.</div>
+    <div class="map-tools">
+      <label for="day-filter">Focus on a day</label>
+      <select id="day-filter" aria-label="Focus map pins by itinerary day">
+        <option value="All">All itinerary pins</option>
+        <option value="Day 1">Day 1 · Christchurch</option>
+        <option value="Day 2">Day 2 · Christchurch to Kaikōura</option>
+        <option value="Day 3">Day 3 · Kaikōura marine activity</option>
+        <option value="Day 4">Day 4 · Cave Stream and Castle Hill</option>
+        <option value="Day 5">Day 5 · Birdlings Flat and Banks Track</option>
+        <option value="Day 6">Day 6 · Banks Track</option>
+        <option value="Day 7">Day 7 · Banks Track</option>
+        <option value="Day 8">Day 8 · Banks Track to Tekapo</option>
+        <option value="Day 9">Day 9 · Hooker Valley and stargazing</option>
+        <option value="Day 10">Day 10 · Tekapo to Wānaka</option>
+        <option value="Day 11">Day 11 · Wānaka to Queenstown</option>
+        <option value="Day 12">Day 12 · Queenstown departure</option>
+      </select>
+    </div>
+    <div id="selected-location" class="selected-location"><strong>Start exploring</strong>Select a location to see its trip note. Each list item also opens in Google Maps.</div>
+  </section>
+  <aside class="sidebar">
+    <h2>Pinned itinerary locations</h2>
+    <p>Each number on the map corresponds to this list. Where no exact address was supplied, the relevant town centre or activity base is pinned.</p>
+    <div id="list"></div>
+    <div class="footnote"><strong>Not pinned:</strong> the Afghan restaurant, individual hotels, the Wānaka house and Chameleon Stargazing’s final meeting point — their exact addresses were not provided. Confirm operator meeting points before travel.</div>
+  </aside>
+</main>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const W=900,H=760, minLon=166.0,maxLon=174.5,minLat=-47.2,maxLat=-40.3, pad=52;
+const x=lon=>pad+(lon-minLon)/(maxLon-minLon)*(W-2*pad);
+const y=lat=>pad+(maxLat-lat)/(maxLat-minLat)*(H-2*pad);
+const colors={travel:'#287bc4', attraction:'#dd7b24', activity:'#7d55a7', base:'#23846b', confirm:'#77827e'};
+const southIsland=[[173.020375,-40.919052],[173.247234,-41.331999],[173.958405,-40.926701],[174.247587,-41.349155],[174.248517,-41.770008],[173.876447,-42.233184],[173.222740,-42.970038],[172.711246,-43.372288],[173.080113,-43.853344],[172.308584,-43.865694],[171.452925,-44.242519],[171.185138,-44.897104],[170.616697,-45.908929],[169.831422,-46.355775],[169.332331,-46.641235],[168.411354,-46.619945],[167.763745,-46.290197],[166.676886,-46.219917],[166.509144,-45.852705],[167.046424,-45.110941],[168.303763,-44.123973],[168.949409,-43.935819],[169.667815,-43.555326],[170.524920,-43.031688],[171.125090,-42.512754],[171.569714,-41.767424],[171.948709,-41.514417],[172.097227,-40.956104],[172.798580,-40.493962],[173.020375,-40.919052]];
+const pins=[
+  {d:'Day 1',t:'travel',n:'Christchurch Airport',lat:-43.4852369,lon:172.5354825,detail:'Arrival · 3:25pm'},
+  {d:'Day 1',t:'attraction',n:'Hagley Park',lat:-43.5276210,lon:172.6202505,detail:'Stroll or picnic'},
+  {d:'Days 1/3/4',t:'base',n:'Christchurch base',lat:-43.5309550,lon:172.6364343,detail:'Town-centre proxy for accommodation and Afghan dinner'},
+  {d:'Day 2',t:'attraction',n:'Nin’s Bin Crayfish',lat:-42.2646050,lon:173.8076869,detail:'Crayfish lunch · SH1 north of Kaikōura'},
+  {d:'Days 2/3',t:'base',n:'Kaikōura',lat:-42.4005999,lon:173.6811428,detail:'Town-centre accommodation and exploration base'},
+  {d:'Days 2/3',t:'attraction',n:'Kaikōura Peninsula Walkway & seal colony',lat:-42.4292642,lon:173.7094220,detail:'Coastal walk and seal viewing'},
+  {d:'Day 3',t:'activity',n:'Whale Watch Kaikōura',lat:-42.3961165,lon:173.6807990,detail:'Choose one main marine activity'},
+  {d:'Day 3',t:'activity',n:'Dolphin Encounter Kaikōura',lat:-42.4087842,lon:173.6855166,detail:'Choose one main marine activity'},
+  {d:'Day 3',t:'activity',n:'Kaikōura Kayaks',lat:-42.4074202,lon:173.6830210,detail:'Choose one main marine activity'},
+  {d:'Day 4',t:'attraction',n:'Cave Stream Scenic Reserve',lat:-43.1966832,lon:171.7422652,detail:'Caving only if weather and water conditions are safe'},
+  {d:'Day 4',t:'attraction',n:'Kura Tāwhiti / Castle Hill',lat:-43.2189597,lon:171.7157261,detail:'Limestone landscape and walking'},
+  {d:'Day 5',t:'attraction',n:'Birdlings Flat Beach',lat:-43.8253465,lon:172.7075565,detail:'Beach and agate-stone stop'},
+  {d:'Days 5–8',t:'activity',n:'Banks Track Akaroa pickup',lat:-43.8053274,lon:172.9668432,detail:'80 Rue Lavaud · 5:30pm check-in/pickup · 3D3N walk'},
+  {d:'Days 8/9',t:'base',n:'Lake Tekapo',lat:-44.0045194,lon:170.4777273,detail:'Town-centre accommodation base'},
+  {d:'Day 9',t:'confirm',n:'Chameleon Stargazing',lat:-44.0045194,lon:170.4777273,detail:'Final meeting point to confirm with operator'},
+  {d:'Day 9',t:'attraction',n:'Hooker Valley Track trailhead',lat:-43.7182291,lon:170.0928935,detail:'White Horse Hill · Aoraki / Mount Cook'},
+  {d:'Day 10',t:'attraction',n:'Mount John Observatory & Astro Café',lat:-43.9854143,lon:170.4644419,detail:'Observatory, summit views and café'},
+  {d:'Day 10',t:'base',n:'Wānaka lakefront',lat:-44.6973357,lon:169.1299138,detail:'Lakefront and Wānaka base'},
+  {d:'Day 11',t:'attraction',n:'Deer Park Heights',lat:-45.0414143,lon:168.7049286,detail:'Queenstown scenic drive and animal encounter'},
+  {d:'Day 11',t:'base',n:'Queenstown lakefront',lat:-45.0329753,lon:168.6583059,detail:'Central Queenstown / final dinner area'},
+  {d:'Day 12',t:'travel',n:'Queenstown Airport',lat:-45.0193000,lon:168.7434399,detail:'Rental return · arrive 1:15pm · flight 3:45pm'}
+];
+const svg=document.getElementById('map');
+const el=(name,attrs={},txt='')=>{const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));e.textContent=txt;return e};
+svg.append(el('rect',{x:0,y:0,width:W,height:H,fill:'#dfeef0'}));
+svg.append(el('path',{d:'M '+southIsland.map(([a,b])=>`${x(a).toFixed(1)},${y(b).toFixed(1)}`).join(' L ')+' Z',class:'land'}));
+svg.append(el('text',{x:63,y:80,class:'tiny'},'TASMAN SEA'));
+svg.append(el('text',{x:700,y:650,class:'tiny'},'PACIFIC OCEAN'));
+const route=[[-43.530955,172.636434],[-42.40060,173.68114],[-43.530955,172.636434],[-43.19668,171.74227],[-43.80533,172.96684],[-44.00452,170.47773],[-43.71823,170.09289],[-44.69734,169.12991],[-45.03298,168.65831],[-45.0193,168.74344]];
+svg.append(el('polyline',{points:route.map(([a,b])=>`${x(b)},${y(a)}`).join(' '),class:'route'}));
+[['CHRISTCHURCH',-43.54,172.44],['KAIKŌURA',-42.47,173.48],['LAKE TEKAPO',-44.10,170.29],['WĀNAKA',-44.78,168.92],['QUEENSTOWN',-45.11,168.48]].forEach(([a,b,c])=>svg.append(el('text',{x:x(c),y:y(b),class:'label'},a)));
+const tooltip=document.getElementById('tooltip');
+const selected=document.getElementById('selected-location');
+const markerGroups={};
+let activeId=null;
+function showLocation(p, scrollList=false) {
+  if (activeId) {
+    markerGroups[activeId]?.classList.remove('is-active');
+    document.getElementById('item-'+activeId)?.classList.remove('is-active');
+  }
+  activeId=p.id;
+  markerGroups[p.id]?.classList.add('is-active');
+  const row=document.getElementById('item-'+p.id);
+  row?.classList.add('is-active');
+  if (scrollList) row?.scrollIntoView({behavior:'smooth',block:'center'});
+  selected.innerHTML=`<strong>${p.id}. ${p.n}</strong>${p.d} · ${p.detail}`;
+}
+pins.forEach((p,i)=>{
+  p.id=i+1;
+  const g=el('g',{class:'pin','data-id':p.id});
+  g.append(el('circle',{cx:x(p.lon),cy:y(p.lat),r:8,fill:colors[p.t]}));
+  g.append(el('text',{x:x(p.lon),y:y(p.lat)+.5},String(p.id)));
+  g.append(el('title',{},`${p.id}. ${p.n} — ${p.detail}`));
+  g.addEventListener('mousemove',ev=>{tooltip.style.display='block';tooltip.style.left=(ev.clientX+14)+'px';tooltip.style.top=(ev.clientY+14)+'px';tooltip.innerHTML=`<strong>${p.id}. ${p.n}</strong><br>${p.d} · ${p.detail}`});
+  g.addEventListener('mouseleave',()=>tooltip.style.display='none');
+  g.addEventListener('click',()=>showLocation(p,true));
+  markerGroups[p.id]=g;
+  svg.append(g);
+});
+const list=document.getElementById('list');
+const groups=[...new Set(pins.map(p=>p.d))];
+groups.forEach(d=>{const section=document.createElement('section');section.className='day';section.dataset.day=d;section.innerHTML=`<h3>${d}</h3>`;pins.filter(p=>p.d===d).forEach(p=>{
+  const row=document.createElement('div');row.id='item-'+p.id;row.className='loc';
+  const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
+  row.innerHTML=`<span class="num" style="background:${colors[p.t]}">${p.id}</span><span><strong>${p.n}</strong><br><span class="muted">${p.detail}</span><br><a class="open-link" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Open ${p.n} in Google Maps">Open in Google Maps</a></span>`;
+  row.addEventListener('click',e=>{if(e.target.closest('a')) return; showLocation(p,false)});
+  section.append(row)
+});list.append(section)});
+const dayFilter=document.getElementById('day-filter');
+dayFilter.addEventListener('change',()=>{
+  const value=dayFilter.value;
+  pins.forEach(p=>{
+    const visible=value==='All'||p.d.includes(value);
+    markerGroups[p.id].style.display=visible?'':'none';
+    const row=document.getElementById('item-'+p.id); if(row) row.style.display=visible?'':'none';
+  });
+  groups.forEach(d=>{const section=[...document.querySelectorAll('.day')].find(s=>s.dataset.day===d); if(section) section.style.display=value==='All'||d.includes(value)?'':'none'});
+  selected.innerHTML=value==='All'?'<strong>All itinerary pins</strong>Select a location to see its trip note.':'<strong>'+value+' selected</strong>Only locations relevant to this day are shown.';
+});
+</script>
+</body>
+</html>
